@@ -244,16 +244,17 @@ function App() {
             </div>
           </section>
 
-          {preSelecao && (
-            <button
-              className={`botao-confirmar-pick botao-confirmar-pick-${pickAtual.equipe}`}
-              disabled={confirmandoPick}
-              onClick={confirmarPick}
-              type="button"
-            >
-              {confirmandoPick ? 'Confirmando...' : 'Pick'}
-            </button>
-          )}
+          <button
+            aria-label={confirmandoPick ? 'Confirmando campeão' : preSelecao ? 'Confirmar Pick' : 'Selecione um campeão para confirmar o Pick'}
+            className={`botao-confirmar-pick${preSelecao ? ` botao-confirmar-pick-${pickAtual.equipe} esta-pronto` : ''}${confirmandoPick ? ' esta-confirmando' : ''}`}
+            disabled={!preSelecao || confirmandoPick}
+            onClick={confirmarPick}
+            type="button"
+          >
+            <span className="rotulo-lock-in">
+              {confirmandoPick ? <span aria-hidden="true" className="indicador-carregando-lock-in" /> : 'LOCK IN'}
+            </span>
+          </button>
         </div>
 
         <PainelEquipe
