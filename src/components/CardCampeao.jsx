@@ -1,5 +1,5 @@
 export function CardCampeao({ campeao, estaSelecionado, aoSelecionar }) {
-  const semCampeao = campeao.id === 'nenhum'
+  const semCampeao = campeao.id === -1
 
   return (
     <button
