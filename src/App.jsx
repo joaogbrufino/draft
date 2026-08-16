@@ -1,6 +1,7 @@
 import Lenis from 'lenis'
 import { useEffect, useRef, useState } from 'react'
 import { CardCampeao } from './components/CardCampeao'
+import { ControlesGradeCampeoes } from './components/ControlesGradeCampeoes'
 import { FiltrosCampeoes } from './components/FiltrosCampeoes'
 import { SkeletonCardCampeao } from './components/SkeletonCardCampeao'
 import { useDadosCampeoes } from './hooks/useDadosCampeoes'
@@ -13,12 +14,22 @@ const opcaoNenhum = {
   posicoes: [],
 }
 const quantidadeCardsSkeleton = 49
+const tamanhoCardPadrao = 74
+const tamanhoCardMinimo = 62
+const tamanhoCardMaximo = 98
+const passoTamanhoCard = 4
+const espacamentoGradePadrao = 12
+const espacamentoGradeMinimo = 4
+const espacamentoGradeMaximo = 24
+const passoEspacamentoGrade = 2
 
 function App() {
-  const [busca, definirBusca] = useState('')
   const { campeoes, carregando, erro } = useDadosCampeoes()
-  const [posicaoSelecionada, definirPosicaoSelecionada] = useState(null)
+  const [busca, definirBusca] = useState('')
   const [campeaoSelecionado, definirCampeaoSelecionado] = useState(opcaoNenhum.id)
+  const [posicaoSelecionada, definirPosicaoSelecionada] = useState(null)
+  const [tamanhoCard, definirTamanhoCard] = useState(tamanhoCardPadrao)
+  const [espacamentoGrade, definirEspacamentoGrade] = useState(espacamentoGradePadrao)
   const referenciaCatalogo = useRef(null)
   const referenciaGrade = useRef(null)
   const opcoesCampeao = [opcaoNenhum, ...campeoes]
@@ -62,6 +73,20 @@ function App() {
     definirPosicaoSelecionada((posicaoAtual) => (posicaoAtual === posicao ? null : posicao))
   }
 
+  function ajustarTamanhoCard(variacao) {
+    definirTamanhoCard((tamanhoAtual) => Math.min(
+      tamanhoCardMaximo,
+      Math.max(tamanhoCardMinimo, tamanhoAtual + variacao),
+    ))
+  }
+
+  function ajustarEspacamentoGrade(variacao) {
+    definirEspacamentoGrade((espacamentoAtual) => Math.min(
+      espacamentoGradeMaximo,
+      Math.max(espacamentoGradeMinimo, espacamentoAtual + variacao),
+    ))
+  }
+
   const termoBusca = busca.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('pt-BR')
   const campeoesVisiveis = opcoesCampeao.filter((campeao) => {
     const nomeCampeao = campeao.nome.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('pt-BR')
@@ -78,6 +103,18 @@ function App() {
       <FiltrosCampeoes
         aoAlterarBusca={definirBusca}
         aoSelecionarPosicao={alternarPosicao}
+        controles={(
+          <ControlesGradeCampeoes
+            aoAgrupar={() => ajustarEspacamentoGrade(-passoEspacamentoGrade)}
+            aoAumentarTamanho={() => ajustarTamanhoCard(passoTamanhoCard)}
+            aoDiminuirTamanho={() => ajustarTamanhoCard(-passoTamanhoCard)}
+            aoSeparar={() => ajustarEspacamentoGrade(passoEspacamentoGrade)}
+            podeAgrupar={espacamentoGrade > espacamentoGradeMinimo}
+            podeAumentarTamanho={tamanhoCard < tamanhoCardMaximo}
+            podeDiminuirTamanho={tamanhoCard > tamanhoCardMinimo}
+            podeSeparar={espacamentoGrade < espacamentoGradeMaximo}
+          />
+        )}
         busca={busca}
         posicaoSelecionada={posicaoSelecionada}
       />
@@ -89,7 +126,11 @@ function App() {
         ref={referenciaCatalogo}
         tabIndex="0"
       >
-        <div className="grade-campeoes" ref={referenciaGrade}>
+        <div
+          className="grade-campeoes"
+          ref={referenciaGrade}
+          style={{ '--espacamento-grade': `${espacamentoGrade}px`, '--tamanho-card': `${tamanhoCard}px` }}
+        >
           {campeoesVisiveis.map((campeao) => (
             <CardCampeao
               aoSelecionar={selecionarCampeao}
