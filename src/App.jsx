@@ -1,6 +1,7 @@
 import Lenis from 'lenis'
 import { useEffect, useRef, useState } from 'react'
 import { CardCampeao } from './components/CardCampeao'
+import { FiltrosCampeoes } from './components/FiltrosCampeoes'
 import { SkeletonCardCampeao } from './components/SkeletonCardCampeao'
 import { useDadosCampeoes } from './hooks/useDadosCampeoes'
 import './App.css'
@@ -9,11 +10,14 @@ const opcaoNenhum = {
   id: -1,
   nome: 'Nenhum',
   icone: 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/-1.png',
+  posicoes: [],
 }
 const quantidadeCardsSkeleton = 49
 
 function App() {
+  const [busca, definirBusca] = useState('')
   const { campeoes, carregando, erro } = useDadosCampeoes()
+  const [posicaoSelecionada, definirPosicaoSelecionada] = useState(null)
   const [campeaoSelecionado, definirCampeaoSelecionado] = useState(opcaoNenhum.id)
   const referenciaCatalogo = useRef(null)
   const referenciaGrade = useRef(null)
@@ -54,9 +58,29 @@ function App() {
     definirCampeaoSelecionado(identificadorCampeao)
   }
 
+  function alternarPosicao(posicao) {
+    definirPosicaoSelecionada((posicaoAtual) => (posicaoAtual === posicao ? null : posicao))
+  }
+
+  const termoBusca = busca.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('pt-BR')
+  const campeoesVisiveis = opcoesCampeao.filter((campeao) => {
+    const nomeCampeao = campeao.nome.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('pt-BR')
+    const correspondeBusca = nomeCampeao.includes(termoBusca)
+    const correspondePosicao = !posicaoSelecionada || campeao.posicoes.includes(posicaoSelecionada)
+
+    return correspondeBusca && correspondePosicao
+  })
+
   return (
     <main className="selecao-campeoes" aria-label="Seleção de campeões">
       {erro && <p className="mensagem-erro">Não foi possível carregar os campeões.</p>}
+
+      <FiltrosCampeoes
+        aoAlterarBusca={definirBusca}
+        aoSelecionarPosicao={alternarPosicao}
+        busca={busca}
+        posicaoSelecionada={posicaoSelecionada}
+      />
 
       <section
         className="catalogo-campeoes"
@@ -66,7 +90,7 @@ function App() {
         tabIndex="0"
       >
         <div className="grade-campeoes" ref={referenciaGrade}>
-          {opcoesCampeao.map((campeao) => (
+          {campeoesVisiveis.map((campeao) => (
             <CardCampeao
               aoSelecionar={selecionarCampeao}
               campeao={campeao}

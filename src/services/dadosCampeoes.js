@@ -1,3 +1,5 @@
+import { obterPosicoesCampeao } from '../data/posicoesCampeoes'
+
 const urlVersoes = 'https://ddragon.leagueoflegends.com/api/versions.json'
 const idioma = 'pt_BR'
 
@@ -24,6 +26,7 @@ export async function buscarCampeoes(sinal) {
       titulo: campeao.title,
       classes: campeao.tags,
       icone: `https://ddragon.leagueoflegends.com/cdn/${versaoAtual}/img/champion/${campeao.image.full}`,
+      posicoes: obterPosicoesCampeao(campeao.name),
     }))
     .sort((primeiroCampeao, segundoCampeao) => primeiroCampeao.nome.localeCompare(segundoCampeao.nome, 'pt-BR'))
 }
