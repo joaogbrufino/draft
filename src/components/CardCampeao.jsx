@@ -1,11 +1,12 @@
-export function CardCampeao({ campeao, estaSelecionado, aoSelecionar }) {
+export function CardCampeao({ campeao, estaIndisponivel, estaSelecionado, aoSelecionar }) {
   const semCampeao = campeao.id === -1
 
   return (
     <button
-      aria-label={semCampeao ? 'Não selecionar campeão' : `Selecionar ${campeao.nome}`}
+      aria-label={estaIndisponivel ? `${campeao.nome} já está selecionado` : semCampeao ? 'Não selecionar campeão' : `Selecionar ${campeao.nome}`}
       aria-pressed={estaSelecionado}
-      className={`card-campeao${estaSelecionado ? ' esta-selecionado' : ''}`}
+      className={`card-campeao${estaSelecionado ? ' esta-selecionado' : ''}${estaIndisponivel ? ' esta-indisponivel' : ''}`}
+      disabled={estaIndisponivel}
       onClick={() => aoSelecionar(campeao.id)}
       type="button"
     >

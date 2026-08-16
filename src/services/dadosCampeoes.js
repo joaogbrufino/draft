@@ -27,6 +27,7 @@ export async function buscarCampeoes(sinal) {
       classes: campeao.tags,
       icone: `https://ddragon.leagueoflegends.com/cdn/${versaoAtual}/img/champion/${campeao.image.full}`,
       posicoes: obterPosicoesCampeao(campeao.name),
+      retrato: `https://ddragon.leagueoflegends.com/cdn/img/champion/splash/${campeao.id}_0.jpg`,
     }))
     .sort((primeiroCampeao, segundoCampeao) => primeiroCampeao.nome.localeCompare(segundoCampeao.nome, 'pt-BR'))
 }
