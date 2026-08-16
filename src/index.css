@@ -13,6 +13,17 @@
 }
 
 * { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  cursor: url('https://cdn.cursors-4u.net/previews/league-of-legends-pointer-db2baa3d-32.webp') 32 32, auto !important;
+}
+
+button:disabled,
+[aria-disabled='true'] {
+  cursor: url('https://cdn.cursors-4u.net/previews/league-of-legends-unavailable-46b5b493-32.webp') 33 33, not-allowed !important;
+}
+
 html { background: var(--background); }
 body { min-width: 320px; min-height: 100vh; margin: 0; background: var(--background); }
 button { font: inherit; }
