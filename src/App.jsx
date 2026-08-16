@@ -1,6 +1,7 @@
 import Lenis from 'lenis'
 import { useEffect, useRef, useState } from 'react'
 import { CardCampeao } from './components/CardCampeao'
+import { SkeletonCardCampeao } from './components/SkeletonCardCampeao'
 import { useDadosCampeoes } from './hooks/useDadosCampeoes'
 import './App.css'
 
@@ -9,7 +10,7 @@ const opcaoNenhum = {
   nome: 'Nenhum',
   icone: 'https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champion-icons/-1.png',
 }
-const quantidadeFramesCarregando = 39
+const quantidadeCardsSkeleton = 49
 
 function App() {
   const { campeoes, carregando, erro } = useDadosCampeoes()
@@ -74,8 +75,8 @@ function App() {
             />
           ))}
 
-          {carregando && Array.from({ length: quantidadeFramesCarregando }, (_, indice) => (
-            <span className="frame-carregando" key={indice} aria-hidden="true" />
+          {carregando && Array.from({ length: quantidadeCardsSkeleton }, (_, indice) => (
+            <SkeletonCardCampeao key={indice} />
           ))}
         </div>
       </section>

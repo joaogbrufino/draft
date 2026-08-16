@@ -33,7 +33,7 @@
 }
 
 .card-campeao,
-.frame-carregando {
+.skeleton-card-campeao {
   position: relative;
   display: block;
   width: 74px;
@@ -92,11 +92,22 @@
   pointer-events: none;
 }
 
-.frame-carregando {
-  background: linear-gradient(115deg, #111111 25%, #191919 45%, #111111 65%);
-  background-size: 220% 100%;
-  animation: pulsar-frame 1.25s linear infinite;
+.skeleton-card-campeao {
+  display: grid;
+  grid-template-rows: 70px 15px;
+  gap: 3px;
 }
+
+.skeleton-imagem-campeao,
+.skeleton-nome-campeao {
+  display: block;
+  background: linear-gradient(115deg, #171717 25%, #262626 45%, #171717 65%);
+  background-size: 220% 100%;
+  animation: pulsar-skeleton 1.35s linear infinite;
+}
+
+.skeleton-imagem-campeao { width: 70px; height: 70px; }
+.skeleton-nome-campeao { width: 46px; height: 8px; align-self: center; justify-self: center; }
 
 .mensagem-erro {
   position: fixed;
@@ -108,7 +119,7 @@
   font-size: 13px;
 }
 
-@keyframes pulsar-frame {
+@keyframes pulsar-skeleton {
   to { background-position: -220% 0; }
 }
 
@@ -126,4 +137,9 @@
 @media (max-width: 460px) {
   .catalogo-campeoes { width: min(100%, 332px); }
   .grade-campeoes { grid-template-columns: repeat(4, 74px); width: min(100%, 308px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-imagem-campeao,
+  .skeleton-nome-campeao { animation: none; }
 }
