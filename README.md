@@ -1,18 +1,18 @@
 <p align="center">
-  <img src="/public/logo.png" alt="Logo UniRV"/>
+  <img src="/public/logo.png" width=350 alt="Logo UniRV"/>
 </p>
 
 <h1 align="center">
-  Simulação de Draft
+  DRAFT — League of Legends
 </h1>
 
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Status-Em%20desenvolvimento-C8923E?style=for-the-badge" alt="Status do projeto: em desenvolvimento" />
-  <img src="https://img.shields.io/badge/React-19.2-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React 19" />
-  <img src="https://img.shields.io/badge/Vite-8.2-646CFF?style=for-the-badge&logo=vite&logoColor=white" alt="Vite 8" />
-  <img src="https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
-  <img src="https://img.shields.io/badge/Node.js-20%2B-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js 20 ou superior" />
+  <img src="https://img.shields.io/badge/status-em_desenvolvimento-0f172a?style=flat-square" alt="Status do projeto: em desenvolvimento" />
+  <img src="https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB" alt="React 19" />
+  <img src="https://img.shields.io/badge/Vite-1a1a1a?style=flat-square&logo=vite&logoColor=646CFF" alt="Vite 8" />
+  <img src="https://img.shields.io/badge/-JavaScript-333333?style=flat&logo=javascript" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white" alt="Node.js 20 ou superior" />
 </p>
 
 ## Resumo
