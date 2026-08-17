@@ -5,6 +5,7 @@ import { ControlesGradeCampeoes } from './components/ControlesGradeCampeoes'
 import { FiltrosCampeoes } from './components/FiltrosCampeoes'
 import { PainelEquipe } from './components/PainelEquipe'
 import { SkeletonCardCampeao } from './components/SkeletonCardCampeao'
+import { useAudioCampeao } from './hooks/useAudioCampeao'
 import { useDadosCampeoes } from './hooks/useDadosCampeoes'
 import './App.css'
 
@@ -70,6 +71,7 @@ function obterIdentificadoresIndisponiveis(selecoesPorEquipe, banimentosPorEquip
 
 function App() {
   const { campeoes, carregando, erro } = useDadosCampeoes()
+  const { prepararAudioCampeao, tocarAudioCampeao } = useAudioCampeao()
   const [busca, definirBusca] = useState('')
   const [campeaoSelecionado, definirCampeaoSelecionado] = useState(opcaoNenhum.id)
   const [posicaoSelecionada, definirPosicaoSelecionada] = useState(null)
@@ -139,6 +141,7 @@ function App() {
 
     definirCampeaoSelecionado(identificadorCampeao)
     definirPreSelecao(campeao)
+    prepararAudioCampeao(campeao, etapaAtual.acao)
   }
 
   function confirmarEscolha() {
@@ -147,6 +150,7 @@ function App() {
     }
 
     definirConfirmandoAcao(true)
+    tocarAudioCampeao(preSelecao, etapaAtual.acao)
     referenciaConfirmacaoAcao.current = window.setTimeout(() => {
       const atualizarSelecoes = etapaAtual.acao === 'pick' ? definirSelecoesPorEquipe : definirBanimentosPorEquipe
 
