@@ -37,16 +37,135 @@
   flex-direction: column;
   max-height: calc(100svh - 48px);
   min-width: 0;
+  padding-top: clamp(12px, 2svh, 20px);
 }
 
 .painel-equipe-azul { grid-area: azul; --cor-turno: 55, 155, 216; }
 .painel-equipe-vermelha { grid-area: vermelha; --cor-turno: 215, 101, 101; }
 
 .lista-picks-equipe {
-  --altura-slot-pick: clamp(86px, calc(20svh - 21px), 132px);
+  --altura-slot-pick: clamp(72px, calc((100svh - 194px) / 5), 132px);
   display: flex;
   flex-direction: column;
   gap: var(--espacamento-picks);
+}
+
+.painel-banimentos {
+  flex: 0 0 auto;
+  margin-top: 16px;
+}
+
+.lista-banimentos-equipe {
+  --espacamento-cards-banimento: 4px;
+  --separacao-grupo-banimentos: 12px;
+  display: flex;
+  width: calc(100% + clamp(16px, 2vw, 32px));
+  gap: var(--espacamento-cards-banimento);
+}
+
+.painel-equipe-vermelha .lista-banimentos-equipe { margin-left: calc(-1 * clamp(16px, 2vw, 32px)); }
+
+.slot-banimento {
+  position: relative;
+  display: grid;
+  flex: 1 1 0;
+  min-width: 0;
+  aspect-ratio: 1;
+  overflow: hidden;
+  place-items: center;
+  border: 1px solid #3d3d3d;
+  padding: 0;
+  color: #686970;
+  background: #202020;
+  transition: border-color .2s ease, background-color .2s ease;
+}
+
+.slot-banimento:nth-child(3) {
+  margin-right: calc(var(--separacao-grupo-banimentos) - var(--espacamento-cards-banimento));
+}
+
+.slot-banimento.possui-campeao::after {
+  position: absolute;
+  inset: -22%;
+  z-index: 2;
+  width: 2px;
+  height: 150%;
+  margin: auto;
+  background: rgba(205, 205, 205, .68);
+  content: '';
+  pointer-events: none;
+  transform: rotate(-45deg);
+}
+
+.slot-banimento.esta-confirmando {
+  animation: confirmar-banimento .46s ease-out both;
+}
+
+.slot-banimento.esta-confirmando::after {
+  position: absolute;
+  inset: -22%;
+  z-index: 2;
+  width: 2px;
+  height: 150%;
+  margin: auto;
+  background: rgba(245, 206, 206, .86);
+  content: '';
+  pointer-events: none;
+  transform: rotate(-45deg) scaleY(0);
+  transform-origin: center;
+  animation: entrada-diagonal-banimento .34s .08s ease-out both;
+}
+
+.slot-banimento.esta-ativo {
+  border-color: rgb(var(--cor-turno));
+  background: #202020;
+  box-shadow: inset 0 -2px 0 rgba(var(--cor-turno), .76), 0 5px 12px -9px rgba(var(--cor-turno), .9);
+}
+
+.slot-banimento.possui-campeao {
+  border-bottom-color: rgb(var(--cor-turno));
+  box-shadow: inset 0 -2px 0 rgba(var(--cor-turno), .72);
+}
+
+.slot-banimento.esta-ativo.possui-campeao { box-shadow: inset 0 -2px 0 rgba(var(--cor-turno), .86), 0 5px 12px -9px rgba(var(--cor-turno), .9); }
+
+.icone-placeholder-banimento {
+  width: 42%;
+  height: 42%;
+  opacity: .72;
+}
+
+.imagem-banimento-campeao {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) brightness(.56) contrast(1.08);
+}
+
+.slot-banimento.em-pre-selecao .imagem-banimento-campeao { filter: grayscale(.7) brightness(.7) contrast(1.04); }
+
+.slot-banimento.esta-confirmando .imagem-banimento-campeao {
+  animation: confirmar-imagem-banimento .46s ease-out both;
+}
+
+.nome-banimento-campeao {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+  overflow: hidden;
+  padding: 12px 3px 3px;
+  color: #e8e8e8;
+  background: linear-gradient(transparent, rgba(0, 0, 0, .88));
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .slot-pick-campeao {
@@ -206,11 +325,11 @@
 .botao-confirmar-pick::before {
   inset: 4px 0 0;
   z-index: -1;
-  border-top: 1px solid #354044;
-  border-bottom: 1px solid rgba(21, 61, 65, .58);
+  border-top: 1px solid #45484a;
+  border-bottom: 1px solid #242627;
   background:
-    linear-gradient(135deg, transparent 0 15%, rgba(18, 77, 82, .7) 29%, rgba(7, 25, 28, .92) 46%, transparent 50%),
-    linear-gradient(225deg, transparent 0 15%, rgba(18, 77, 82, .7) 29%, rgba(7, 25, 28, .92) 46%, transparent 50%);
+    linear-gradient(135deg, transparent 0 15%, rgba(68, 72, 73, .72) 29%, rgba(14, 16, 17, .94) 46%, transparent 50%),
+    linear-gradient(225deg, transparent 0 15%, rgba(68, 72, 73, .72) 29%, rgba(14, 16, 17, .94) 46%, transparent 50%);
   clip-path: polygon(0 0, 20% 0, 31% 58%, 50% 100%, 69% 58%, 80% 0, 100% 0, 100% 27%, 82% 27%, 68% 78%, 50% 100%, 32% 78%, 18% 27%, 0 27%);
 }
 
@@ -237,43 +356,105 @@
 }
 
 .botao-confirmar-pick.esta-pronto {
-  color: #e9dec2;
-  filter: drop-shadow(0 4px 8px rgba(20, 153, 165, .2));
+  color: #e4e4e4;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, .34));
 }
 
 .botao-confirmar-pick.esta-pronto::before {
-  border-top-color: rgba(75, 198, 204, .7);
-  border-bottom-color: rgba(28, 115, 121, .8);
+  border-top-color: #666a6c;
+  border-bottom-color: #2a2c2d;
   background:
-    linear-gradient(135deg, transparent 0 15%, rgba(27, 132, 139, .9) 29%, rgba(7, 32, 35, .94) 47%, transparent 50%),
-    linear-gradient(225deg, transparent 0 15%, rgba(27, 132, 139, .9) 29%, rgba(7, 32, 35, .94) 47%, transparent 50%);
+    linear-gradient(135deg, transparent 0 15%, rgba(82, 86, 87, .92) 29%, rgba(17, 19, 20, .95) 47%, transparent 50%),
+    linear-gradient(225deg, transparent 0 15%, rgba(82, 86, 87, .92) 29%, rgba(17, 19, 20, .95) 47%, transparent 50%);
 }
 
 .botao-confirmar-pick.esta-pronto > .rotulo-lock-in {
-  border-color: #b59a5c;
-  background: linear-gradient(180deg, #353431, #1c1c1a);
-  box-shadow: inset 0 1px 0 rgba(237, 207, 141, .2), inset 0 -1px 0 rgba(72, 57, 29, .8), 0 0 10px -6px rgba(108, 220, 231, .9);
+  border-color: #777b7d;
+  background: linear-gradient(180deg, #383c3d, #17191a);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), inset 0 -1px 0 rgba(0, 0, 0, .82);
 }
 
 .botao-confirmar-pick.esta-pronto:has(> .rotulo-lock-in:hover),
 .botao-confirmar-pick.esta-pronto:focus-visible {
-  color: #fff3d1;
+  color: #fff;
   outline: none;
   filter: brightness(1.1);
 }
 
 .botao-confirmar-pick.esta-pronto:has(> .rotulo-lock-in:hover) > .rotulo-lock-in,
 .botao-confirmar-pick.esta-pronto:focus-visible > .rotulo-lock-in {
-  border-color: #e0c176;
-  box-shadow: inset 0 1px 0 rgba(255, 230, 163, .34), inset 0 0 12px rgba(77, 178, 188, .13), 0 0 16px -5px rgba(94, 220, 232, .95);
+  border-color: #a9adaf;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .24), inset 0 0 12px rgba(255, 255, 255, .06);
+}
+
+.botao-confirmar-pick.esta-pronto:not(.em-banimento) {
+  color: #c8edf0;
+  filter: drop-shadow(0 4px 8px rgba(22, 128, 140, .25));
+}
+
+.botao-confirmar-pick.esta-pronto:not(.em-banimento)::before {
+  border-top-color: rgba(74, 180, 188, .72);
+  border-bottom-color: rgba(21, 91, 98, .82);
+  background:
+    linear-gradient(135deg, transparent 0 15%, rgba(24, 116, 124, .9) 29%, rgba(7, 28, 31, .95) 47%, transparent 50%),
+    linear-gradient(225deg, transparent 0 15%, rgba(24, 116, 124, .9) 29%, rgba(7, 28, 31, .95) 47%, transparent 50%);
+}
+
+.botao-confirmar-pick.esta-pronto:not(.em-banimento) > .rotulo-lock-in {
+  border-color: #5ea3a9;
+  background: linear-gradient(180deg, #26383a, #131d1f);
+  box-shadow: inset 0 1px 0 rgba(182, 239, 244, .16), inset 0 -1px 0 rgba(4, 34, 38, .88), 0 0 12px -7px rgba(94, 220, 232, .9);
+}
+
+.botao-confirmar-pick.esta-pronto:not(.em-banimento):has(> .rotulo-lock-in:hover),
+.botao-confirmar-pick.esta-pronto:not(.em-banimento):focus-visible {
+  color: #efffff;
+  filter: drop-shadow(0 4px 10px rgba(66, 202, 215, .34));
+}
+
+.botao-confirmar-pick.esta-pronto:not(.em-banimento):has(> .rotulo-lock-in:hover) > .rotulo-lock-in,
+.botao-confirmar-pick.esta-pronto:not(.em-banimento):focus-visible > .rotulo-lock-in {
+  border-color: #9ddce1;
+  box-shadow: inset 0 1px 0 rgba(215, 255, 255, .28), inset 0 0 12px rgba(74, 192, 202, .14), 0 0 16px -5px rgba(94, 220, 232, .85);
+}
+
+.botao-confirmar-pick.esta-pronto.em-banimento {
+  color: #f1cdcd;
+  filter: drop-shadow(0 4px 8px rgba(145, 45, 49, .28));
+}
+
+.botao-confirmar-pick.esta-pronto.em-banimento::before {
+  border-top-color: rgba(177, 74, 77, .74);
+  border-bottom-color: rgba(93, 27, 30, .88);
+  background:
+    linear-gradient(135deg, transparent 0 15%, rgba(112, 38, 42, .92) 29%, rgba(30, 12, 13, .96) 47%, transparent 50%),
+    linear-gradient(225deg, transparent 0 15%, rgba(112, 38, 42, .92) 29%, rgba(30, 12, 13, .96) 47%, transparent 50%);
+}
+
+.botao-confirmar-pick.esta-pronto.em-banimento > .rotulo-lock-in {
+  border-color: #a65558;
+  background: linear-gradient(180deg, #3b2527, #1d1213);
+  box-shadow: inset 0 1px 0 rgba(255, 202, 202, .16), inset 0 -1px 0 rgba(45, 8, 9, .9), 0 0 12px -7px rgba(211, 88, 92, .88);
+}
+
+.botao-confirmar-pick.esta-pronto.em-banimento:has(> .rotulo-lock-in:hover),
+.botao-confirmar-pick.esta-pronto.em-banimento:focus-visible {
+  color: #fff1f1;
+  filter: drop-shadow(0 4px 10px rgba(219, 92, 96, .4));
+}
+
+.botao-confirmar-pick.esta-pronto.em-banimento:has(> .rotulo-lock-in:hover) > .rotulo-lock-in,
+.botao-confirmar-pick.esta-pronto.em-banimento:focus-visible > .rotulo-lock-in {
+  border-color: #db8688;
+  box-shadow: inset 0 1px 0 rgba(255, 225, 225, .28), inset 0 0 12px rgba(190, 60, 64, .16), 0 0 16px -5px rgba(224, 94, 98, .82);
 }
 
 .indicador-carregando-lock-in {
   display: block;
   width: 15px;
   height: 15px;
-  border: 2px solid rgba(237, 222, 180, .28);
-  border-top-color: #f2dc9a;
+  border: 2px solid rgba(218, 218, 218, .28);
+  border-top-color: #e8e8e8;
   border-radius: 50%;
   animation: girar-indicador-lock-in .6s linear infinite;
 }
@@ -422,7 +603,7 @@
 
 .catalogo-campeoes {
   width: 100%;
-  max-height: min(504px, calc(100svh - 48px));
+  max-height: min(504px, calc(100svh - 235px));
   overflow-y: auto;
   padding: 0 12px;
   scroll-behavior: auto;
@@ -506,6 +687,24 @@
 
 .card-campeao.esta-indisponivel .imagem-campeao { filter: grayscale(.8) brightness(.65); }
 
+.card-campeao.esta-banido { position: relative; }
+.card-campeao.esta-banido.banido-azul { --cor-banimento: 55, 155, 216; }
+.card-campeao.esta-banido.banido-vermelha { --cor-banimento: 215, 101, 101; }
+
+.card-campeao.esta-banido::before {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  left: 1px;
+  z-index: 2;
+  height: 2px;
+  background: rgb(var(--cor-banimento));
+  content: '';
+  pointer-events: none;
+}
+
+.card-campeao.esta-banido { border-color: rgba(var(--cor-banimento), .72); }
+
 .card-campeao.esta-selecionado::after {
   position: absolute;
   inset: 0;
@@ -551,6 +750,23 @@
   0% { filter: saturate(.88) brightness(1); transform: scale(1); }
   45% { filter: saturate(1.18) brightness(1.3); transform: scale(1.045); }
   100% { filter: saturate(.95) brightness(1.05); transform: scale(1); }
+}
+
+@keyframes confirmar-banimento {
+  0% { border-color: rgba(178, 64, 68, .58); box-shadow: inset 0 0 0 rgba(224, 92, 96, 0), 0 0 0 rgba(224, 92, 96, 0); }
+  38% { border-color: #d7787b; box-shadow: inset 0 0 28px rgba(192, 51, 56, .28), 0 0 18px rgba(220, 82, 87, .48); }
+  100% { border-color: rgb(var(--cor-turno)); box-shadow: inset 0 -2px 0 rgba(var(--cor-turno), .86), 0 0 0 rgba(224, 92, 96, 0); }
+}
+
+@keyframes confirmar-imagem-banimento {
+  0% { filter: grayscale(.18) brightness(1.1) saturate(.9); transform: scale(1.04); }
+  35% { filter: grayscale(.55) brightness(1.28) saturate(.35); transform: scale(1.025); }
+  100% { filter: grayscale(1) brightness(.56) contrast(1.08); transform: scale(1); }
+}
+
+@keyframes entrada-diagonal-banimento {
+  0% { opacity: 0; transform: rotate(-45deg) scaleY(0); }
+  100% { opacity: 1; transform: rotate(-45deg) scaleY(1); }
 }
 
 @keyframes confirmar-botao-pick {
@@ -602,6 +818,8 @@
   }
   .slot-pick-campeao { flex: none; height: 58px; }
   .slot-pick-campeao.esta-ativo { flex-basis: auto; height: 72px; }
+  .lista-banimentos-equipe { width: 100%; }
+  .painel-equipe-vermelha .lista-banimentos-equipe { margin-left: 0; }
   .nome-pick-campeao { display: none; }
 }
 
@@ -631,12 +849,17 @@
   .imagem-campeao,
   .skeleton-card-campeao,
   .slot-pick-campeao,
+  .slot-banimento,
   .imagem-pick-campeao,
+  .imagem-banimento-campeao,
   .botao-remover-pick,
   .slot-pick-campeao::after { transition: none; }
 
   .botao-confirmar-pick,
   .botao-confirmar-pick::after,
-  .indicador-carregando-lock-in { animation: none; }
+  .indicador-carregando-lock-in,
+  .slot-banimento.esta-confirmando,
+  .slot-banimento.esta-confirmando::after,
+  .slot-banimento.esta-confirmando .imagem-banimento-campeao { animation: none; }
 
 }
