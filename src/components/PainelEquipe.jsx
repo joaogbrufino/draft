@@ -1,6 +1,7 @@
 import { IconeCapacete } from './IconeCapacete'
+import { PainelBanimentos } from './PainelBanimentos'
 
-function SlotPickCampeao({ aoRemover, campeao, confirmandoPick, estaAtivo, indice, nomeEquipe, podeRemover, preSelecao }) {
+function SlotPickCampeao({ aoRemover, campeao, confirmandoAcao, estaAtivo, indice, nomeEquipe, podeRemover, preSelecao }) {
   const campeaoExibido = estaAtivo && preSelecao ? preSelecao : campeao
   const estaEmPreSelecao = estaAtivo && Boolean(preSelecao)
   const rotuloSlot = estaEmPreSelecao
@@ -14,7 +15,7 @@ function SlotPickCampeao({ aoRemover, campeao, confirmandoPick, estaAtivo, indic
   return (
     <article
       aria-label={rotuloSlot}
-      className={`slot-pick-campeao${campeaoExibido ? ' possui-campeao' : ''}${estaAtivo ? ' esta-ativo' : ''}${estaEmPreSelecao ? ' em-pre-selecao' : ''}${confirmandoPick && estaAtivo ? ' esta-confirmando' : ''}`}
+      className={`slot-pick-campeao${campeaoExibido ? ' possui-campeao' : ''}${estaAtivo ? ' esta-ativo' : ''}${estaEmPreSelecao ? ' em-pre-selecao' : ''}${confirmandoAcao && estaAtivo ? ' esta-confirmando' : ''}`}
     >
       <div className="conteudo-slot-pick">
         {campeaoExibido ? (
@@ -38,7 +39,7 @@ function SlotPickCampeao({ aoRemover, campeao, confirmandoPick, estaAtivo, indic
   )
 }
 
-export function PainelEquipe({ aoRemoverCampeao, confirmandoPick, equipe, podeRemover, preSelecao, selecoes, slotAtivo }) {
+export function PainelEquipe({ aoRemoverCampeao, banimentos, confirmandoAcao, equipe, etapaAtual, podeRemover, preSelecao, selecoes }) {
   const nomeEquipe = equipe === 'azul' ? 'Equipe azul' : 'Equipe vermelha'
 
   return (
@@ -48,8 +49,8 @@ export function PainelEquipe({ aoRemoverCampeao, confirmandoPick, equipe, podeRe
           <SlotPickCampeao
             aoRemover={() => aoRemoverCampeao(equipe, indice)}
             campeao={campeao}
-            confirmandoPick={confirmandoPick}
-            estaAtivo={slotAtivo?.equipe === equipe && slotAtivo.indice === indice}
+            confirmandoAcao={confirmandoAcao}
+            estaAtivo={etapaAtual?.acao === 'pick' && etapaAtual.equipe === equipe && etapaAtual.indice === indice}
             indice={indice}
             key={indice}
             nomeEquipe={nomeEquipe}
@@ -58,6 +59,14 @@ export function PainelEquipe({ aoRemoverCampeao, confirmandoPick, equipe, podeRe
           />
         ))}
       </div>
+
+      <PainelBanimentos
+        banimentos={banimentos}
+        confirmandoAcao={confirmandoAcao}
+        equipe={equipe}
+        etapaAtual={etapaAtual}
+        preSelecao={preSelecao}
+      />
     </aside>
   )
 }

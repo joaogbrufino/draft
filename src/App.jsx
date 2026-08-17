@@ -24,21 +24,48 @@ const espacamentoGradeMinimo = 4
 const espacamentoGradeMaximo = 24
 const passoEspacamentoGrade = 2
 const quantidadePicksPorEquipe = 5
-const ordemPicks = [
-  { equipe: 'azul', indice: 0 },
-  { equipe: 'vermelha', indice: 0 },
-  { equipe: 'vermelha', indice: 1 },
-  { equipe: 'azul', indice: 1 },
-  { equipe: 'azul', indice: 2 },
-  { equipe: 'vermelha', indice: 2 },
-  { equipe: 'vermelha', indice: 3 },
-  { equipe: 'azul', indice: 3 },
-  { equipe: 'azul', indice: 4 },
-  { equipe: 'vermelha', indice: 4 },
+const ordemDraft = [
+  { acao: 'ban', equipe: 'azul', indice: 0 },
+  { acao: 'ban', equipe: 'vermelha', indice: 0 },
+  { acao: 'ban', equipe: 'azul', indice: 1 },
+  { acao: 'ban', equipe: 'vermelha', indice: 1 },
+  { acao: 'ban', equipe: 'azul', indice: 2 },
+  { acao: 'ban', equipe: 'vermelha', indice: 2 },
+  { acao: 'pick', equipe: 'azul', indice: 0 },
+  { acao: 'pick', equipe: 'vermelha', indice: 0 },
+  { acao: 'pick', equipe: 'vermelha', indice: 1 },
+  { acao: 'pick', equipe: 'azul', indice: 1 },
+  { acao: 'pick', equipe: 'azul', indice: 2 },
+  { acao: 'pick', equipe: 'vermelha', indice: 2 },
+  { acao: 'ban', equipe: 'vermelha', indice: 3 },
+  { acao: 'ban', equipe: 'azul', indice: 3 },
+  { acao: 'ban', equipe: 'vermelha', indice: 4 },
+  { acao: 'ban', equipe: 'azul', indice: 4 },
+  { acao: 'pick', equipe: 'vermelha', indice: 3 },
+  { acao: 'pick', equipe: 'azul', indice: 3 },
+  { acao: 'pick', equipe: 'azul', indice: 4 },
+  { acao: 'pick', equipe: 'vermelha', indice: 4 },
 ]
 
 function criarSelecoesVazias() {
   return Array(quantidadePicksPorEquipe).fill(null)
+}
+
+function obterIndiceEtapa(acao, equipe, indice) {
+  return ordemDraft.findIndex((etapa) => etapa.acao === acao && etapa.equipe === equipe && etapa.indice === indice)
+}
+
+function obterIdentificadoresIndisponiveis(selecoesPorEquipe, banimentosPorEquipe, identificadoresFearless = []) {
+  const identificadoresPicks = Object.values(selecoesPorEquipe)
+    .flat()
+    .filter(Boolean)
+    .map((campeao) => campeao.id)
+  const identificadoresBanimentos = Object.values(banimentosPorEquipe)
+    .flat()
+    .filter(Boolean)
+    .map((campeao) => campeao.id)
+
+  return [...new Set([...identificadoresPicks, ...identificadoresBanimentos, ...identificadoresFearless])]
 }
 
 function App() {
@@ -48,16 +75,20 @@ function App() {
   const [posicaoSelecionada, definirPosicaoSelecionada] = useState(null)
   const [tamanhoCard, definirTamanhoCard] = useState(tamanhoCardPadrao)
   const [espacamentoGrade, definirEspacamentoGrade] = useState(espacamentoGradePadrao)
-  const [indicePickAtual, definirIndicePickAtual] = useState(0)
+  const [indiceEtapaAtual, definirIndiceEtapaAtual] = useState(0)
   const [preSelecao, definirPreSelecao] = useState(null)
-  const [confirmandoPick, definirConfirmandoPick] = useState(false)
+  const [confirmandoAcao, definirConfirmandoAcao] = useState(false)
   const [selecoesPorEquipe, definirSelecoesPorEquipe] = useState({
+    azul: criarSelecoesVazias(),
+    vermelha: criarSelecoesVazias(),
+  })
+  const [banimentosPorEquipe, definirBanimentosPorEquipe] = useState({
     azul: criarSelecoesVazias(),
     vermelha: criarSelecoesVazias(),
   })
   const referenciaCatalogo = useRef(null)
   const referenciaGrade = useRef(null)
-  const referenciaConfirmacaoPick = useRef(null)
+  const referenciaConfirmacaoAcao = useRef(null)
   const opcoesCampeao = [opcaoNenhum, ...campeoes]
 
   useEffect(() => {
@@ -91,7 +122,7 @@ function App() {
     }
   }, [])
 
-  useEffect(() => () => window.clearTimeout(referenciaConfirmacaoPick.current), [])
+  useEffect(() => () => window.clearTimeout(referenciaConfirmacaoAcao.current), [])
 
   function selecionarCampeao(identificadorCampeao) {
     if (identificadorCampeao === opcaoNenhum.id) {
@@ -102,7 +133,7 @@ function App() {
 
     const campeao = campeoes.find((item) => item.id === identificadorCampeao)
 
-    if (!campeao || identificadoresSelecionados.includes(identificadorCampeao) || !pickAtual) {
+    if (!campeao || !etapaAtual || identificadoresIndisponiveis.includes(identificadorCampeao)) {
       return
     }
 
@@ -110,43 +141,54 @@ function App() {
     definirPreSelecao(campeao)
   }
 
-  function confirmarPick() {
-    if (!preSelecao || !pickAtual || confirmandoPick) {
+  function confirmarEscolha() {
+    if (!preSelecao || !etapaAtual || confirmandoAcao) {
       return
     }
 
-    definirConfirmandoPick(true)
-    referenciaConfirmacaoPick.current = window.setTimeout(() => {
-      definirSelecoesPorEquipe((selecoesAtuais) => ({
+    definirConfirmandoAcao(true)
+    referenciaConfirmacaoAcao.current = window.setTimeout(() => {
+      const atualizarSelecoes = etapaAtual.acao === 'pick' ? definirSelecoesPorEquipe : definirBanimentosPorEquipe
+
+      atualizarSelecoes((selecoesAtuais) => ({
         ...selecoesAtuais,
-        [pickAtual.equipe]: selecoesAtuais[pickAtual.equipe].map((selecao, indice) => (
-          indice === pickAtual.indice ? preSelecao : selecao
+        [etapaAtual.equipe]: selecoesAtuais[etapaAtual.equipe].map((selecao, indice) => (
+          indice === etapaAtual.indice ? preSelecao : selecao
         )),
       }))
-      definirIndicePickAtual((indiceAtual) => indiceAtual + 1)
+      definirIndiceEtapaAtual((indiceAtual) => indiceAtual + 1)
+      definirCampeaoSelecionado(opcaoNenhum.id)
       definirPreSelecao(null)
-      definirConfirmandoPick(false)
+      definirConfirmandoAcao(false)
     }, 460)
   }
 
   function removerCampeao(equipe, indice) {
-    const indicePick = ordemPicks.findIndex((pick) => pick.equipe === equipe && pick.indice === indice)
+    const indiceEtapa = obterIndiceEtapa('pick', equipe, indice)
 
-    if (indicePick === -1) {
+    if (indiceEtapa === -1) {
       return
     }
 
     definirSelecoesPorEquipe((selecoesAtuais) => ({
       azul: selecoesAtuais.azul.map((selecao, indiceSelecao) => (
-        ordemPicks.findIndex((pick) => pick.equipe === 'azul' && pick.indice === indiceSelecao) >= indicePick ? null : selecao
+        obterIndiceEtapa('pick', 'azul', indiceSelecao) >= indiceEtapa ? null : selecao
       )),
       vermelha: selecoesAtuais.vermelha.map((selecao, indiceSelecao) => (
-        ordemPicks.findIndex((pick) => pick.equipe === 'vermelha' && pick.indice === indiceSelecao) >= indicePick ? null : selecao
+        obterIndiceEtapa('pick', 'vermelha', indiceSelecao) >= indiceEtapa ? null : selecao
+      )),
+    }))
+    definirBanimentosPorEquipe((banimentosAtuais) => ({
+      azul: banimentosAtuais.azul.map((banimento, indiceBanimento) => (
+        obterIndiceEtapa('ban', 'azul', indiceBanimento) >= indiceEtapa ? null : banimento
+      )),
+      vermelha: banimentosAtuais.vermelha.map((banimento, indiceBanimento) => (
+        obterIndiceEtapa('ban', 'vermelha', indiceBanimento) >= indiceEtapa ? null : banimento
       )),
     }))
     definirCampeaoSelecionado(opcaoNenhum.id)
     definirPreSelecao(null)
-    definirIndicePickAtual(indicePick)
+    definirIndiceEtapaAtual(indiceEtapa)
   }
 
   function alternarPosicao(posicao) {
@@ -168,12 +210,21 @@ function App() {
   }
 
   const termoBusca = busca.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('pt-BR')
-  const identificadoresSelecionados = Object.values(selecoesPorEquipe)
-    .flat()
-    .filter(Boolean)
-    .map((campeao) => campeao.id)
-  const pickAtual = ordemPicks[indicePickAtual] ?? null
-  const draftFinalizado = pickAtual === null
+  const identificadoresFearless = []
+  const identificadoresIndisponiveis = obterIdentificadoresIndisponiveis(
+    selecoesPorEquipe,
+    banimentosPorEquipe,
+    identificadoresFearless,
+  )
+  const equipePorBanimento = Object.fromEntries(
+    Object.entries(banimentosPorEquipe)
+      .flatMap(([equipe, banimentos]) => banimentos
+        .filter(Boolean)
+        .map((campeao) => [campeao.id, equipe])),
+  )
+  const etapaAtual = ordemDraft[indiceEtapaAtual] ?? null
+  const draftFinalizado = etapaAtual === null
+  const acaoAtual = etapaAtual?.acao ?? null
   const campeoesVisiveis = opcoesCampeao.filter((campeao) => {
     const nomeCampeao = campeao.nome.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('pt-BR')
     const correspondeBusca = nomeCampeao.includes(termoBusca)
@@ -188,12 +239,13 @@ function App() {
       <div className="layout-selecao">
         <PainelEquipe
           aoRemoverCampeao={removerCampeao}
-          confirmandoPick={confirmandoPick}
+          banimentos={banimentosPorEquipe.azul}
+          confirmandoAcao={confirmandoAcao}
           equipe="azul"
           podeRemover={draftFinalizado}
           preSelecao={preSelecao}
           selecoes={selecoesPorEquipe.azul}
-          slotAtivo={pickAtual}
+          etapaAtual={etapaAtual}
         />
 
         <div className="area-catalogo">
@@ -232,7 +284,8 @@ function App() {
                 <CardCampeao
                   aoSelecionar={selecionarCampeao}
                   campeao={campeao}
-                  estaIndisponivel={campeao.id !== opcaoNenhum.id && (confirmandoPick || draftFinalizado || identificadoresSelecionados.includes(campeao.id))}
+                  equipeBanidora={equipePorBanimento[campeao.id]}
+                  estaIndisponivel={campeao.id !== opcaoNenhum.id && (confirmandoAcao || draftFinalizado || identificadoresIndisponiveis.includes(campeao.id))}
                   estaSelecionado={campeao.id === campeaoSelecionado}
                   key={campeao.id}
                 />
@@ -245,26 +298,27 @@ function App() {
           </section>
 
           <button
-            aria-label={confirmandoPick ? 'Confirmando campeão' : preSelecao ? 'Confirmar Pick' : 'Selecione um campeão para confirmar o Pick'}
-            className={`botao-confirmar-pick${preSelecao ? ` botao-confirmar-pick-${pickAtual.equipe} esta-pronto` : ''}${confirmandoPick ? ' esta-confirmando' : ''}`}
-            disabled={!preSelecao || confirmandoPick}
-            onClick={confirmarPick}
+            aria-label={confirmandoAcao ? 'Confirmando campeão' : preSelecao ? `Confirmar ${acaoAtual}` : `Selecione um campeão para confirmar o ${acaoAtual ?? 'draft'}`}
+            className={`botao-confirmar-pick${preSelecao && etapaAtual ? ` botao-confirmar-pick-${etapaAtual.equipe} esta-pronto` : ''}${confirmandoAcao ? ' esta-confirmando' : ''}${acaoAtual === 'ban' ? ' em-banimento' : ''}`}
+            disabled={!preSelecao || confirmandoAcao}
+            onClick={confirmarEscolha}
             type="button"
           >
             <span className="rotulo-lock-in">
-              {confirmandoPick ? <span aria-hidden="true" className="indicador-carregando-lock-in" /> : 'LOCK IN'}
+              {confirmandoAcao ? <span aria-hidden="true" className="indicador-carregando-lock-in" /> : acaoAtual === 'ban' ? 'BAN' : 'LOCK IN'}
             </span>
           </button>
         </div>
 
         <PainelEquipe
           aoRemoverCampeao={removerCampeao}
-          confirmandoPick={confirmandoPick}
+          banimentos={banimentosPorEquipe.vermelha}
+          confirmandoAcao={confirmandoAcao}
           equipe="vermelha"
           podeRemover={draftFinalizado}
           preSelecao={preSelecao}
           selecoes={selecoesPorEquipe.vermelha}
-          slotAtivo={pickAtual}
+          etapaAtual={etapaAtual}
         />
       </div>
     </main>
